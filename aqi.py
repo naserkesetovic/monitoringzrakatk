@@ -19,6 +19,14 @@ class aqi:
             raise Exception('Nisu unešene vrijednosti za računanje AQI (list[vrijednosti])')
             return
 
+    def __str__(self):
+        return "Izračunate vrijednosti: AQI: {0}, koncentracija: {1} {2}, opis: '{3}'.".format(
+            self.aqi,
+            self.koncentracija,
+            self.jedinica,
+            self.opis
+        )
+
     @staticmethod
     def __description(value):
         if value < 50:
