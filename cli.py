@@ -35,8 +35,8 @@ def unesi_grad():
         try:
             podaci = mztk.mztk(grad)
         except Exception as e:
-            print(e)
-            return 
+            console.print("[red][bold]Greska: [/bold][/red]{0}".format(e))
+            return
 
     os.system('cls||clear')
     console.rule("http://monitoringzrakatk.info")

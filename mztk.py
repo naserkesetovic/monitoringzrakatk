@@ -12,8 +12,12 @@ units = ['µg/m³', 'µg/m³', 'mg/m³', 'µg/m³', 'µg/m³', '%', 'mBar', '°C
 url = 'http://monitoringzrakatk.info/'
 url_news = 'http://monitoringzrakatk.info/news.html'
 
+class CityNotFound(Exception):
+    def __init__(self):
+        super().__init__("Nije pronadjen trazeni grad.")
+
 class mztk:
-    ''' 
+    '''
     Prikupljanje podataka o kvaliteti zraka s stranice www.monitoringzrakatk.info za grad Lukavac 
     * Ukoliko traženi podatak nije dostupan u tom trenutku, njegova vrijednost će biti 0
 
@@ -98,7 +102,8 @@ class mztk:
     def __init__(self, grad):
         ''' Osnovni podaci  '''
         if not grad.lower() in gradovi:
-            raise Exception('Nije pronađen specificiran grad. :/')
+            # raise Exception('Nije pronađen specificiran grad. :/')
+            raise CityNotFound
             return
 
         if grad in mobilna_gradovi:
@@ -117,7 +122,7 @@ class mztk:
         self.ws = 0
         self.wd = 0
         self.grad = grad.lower()
-    
+
         ''' epoch kada su prikupljeni podaci '''
         self.__update = None
 
@@ -162,7 +167,7 @@ class mztk:
         # tačnije 365.242375
         # (prijestupna godina - djeljivo s 4, nije djeljivo s 100)
         # (ali ne uključujući godine 2000 i 2400...)
-        # ... ali je ovo višak podataka... 
+        # ... ali je ovo višak podataka...
 
         year = int(math.floor(seconds / 31556926))
         remainder = seconds % 31556926
@@ -222,8 +227,8 @@ class mztk:
             else:
                 page = requests.get("{0}mobilna-{1}.html".format(url, self.grad))
 
-        except: 
-            return 
+        except:
+            return
 
         soup = BeautifulSoup(page.content, 'lxml')
         self.__update = time.time()
@@ -278,7 +283,7 @@ class mztk:
             self.ws = float(values[8].find('span').get_text())
         except:
             self.ws = 0
-    
+
         try:
             self.wd = float(values[9].find('span').get_text())
         except:
@@ -288,8 +293,8 @@ class mztk:
         ''' Prikupi zadnje vijesti s stranice '''
         try:
             page = requests.get(url_news)
-        except: 
-            return 
+        except:
+            return
 
         soup = BeautifulSoup(page.content, 'lxml')
         news = soup.find_all('div', class_ = 'col-md-12 alert alert-warning')
@@ -302,7 +307,7 @@ class mztk:
 
             results.append(self.News(date, content))
 
-        return results 
+        return results
 
     def __str__(self):
         return "Trenutno stanje zraka: SO2: {0} [µg/m³], NO2: {1} [µg/m³], CO: {2} [mg/m³], O3: {3} [µg/m³], PM2.5: {4} [µg/m³], rel. vlažnost: {5} [%], pritisak: {6} [mBar], temperatura: {7} [°C], brzina vjetra: {8} [m/s], smjer vjetra: {9} [°]. Podaci prikupljeni {10} ({11} {12}).".format(
